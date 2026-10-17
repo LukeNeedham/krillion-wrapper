@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -21,9 +22,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 
 private const val GAME_URL = "https://krillion.io/"
 private const val GAME_HOST = "krillion.io"
@@ -43,7 +44,6 @@ class MainActivity : ComponentActivity() {
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        enterImmersiveMode()
 
         webView = WebView(this).apply {
             layoutParams = FrameLayout.LayoutParams(
@@ -73,6 +73,16 @@ class MainActivity : ComponentActivity() {
                 setBackgroundColor(getColor(R.color.background))
                 addView(webView)
                 addView(errorView)
+                // Android 15+ draws edge to edge; keep the game clear of the (visible) system bars.
+                ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
+                    val safe = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() or
+                            WindowInsetsCompat.Type.displayCutout() or
+                            WindowInsetsCompat.Type.ime(),
+                    )
+                    view.setPadding(safe.left, safe.top, safe.right, safe.bottom)
+                    WindowInsetsCompat.CONSUMED
+                }
             },
         )
 
@@ -114,22 +124,10 @@ class MainActivity : ComponentActivity() {
         super.onPause()
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) enterImmersiveMode()
-    }
-
     override fun onDestroy() {
         (webView.parent as? ViewGroup)?.removeView(webView)
         webView.destroy()
         super.onDestroy()
-    }
-
-    private fun enterImmersiveMode() {
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            hide(WindowInsetsCompat.Type.systemBars())
-        }
     }
 
     private fun buildErrorView(): View {
@@ -177,11 +175,22 @@ class MainActivity : ComponentActivity() {
             return true
         }
 
+        override fun shouldInterceptRequest(
+            view: WebView,
+            request: WebResourceRequest,
+        ): WebResourceResponse? {
+            // Answer ad requests with an empty page so nothing is downloaded or shown.
+            val host = request.url.host
+            return if (host != null && AdBlocker.isAdHost(host)) AdBlocker.emptyResponse() else null
+        }
+
         override fun onPageStarted(view: WebView, url: String?, favicon: android.graphics.Bitmap?) {
             mainFrameFailed = false
+            view.evaluateJavascript(AdBlocker.HIDE_ADS_SCRIPT, null)
         }
 
         override fun onPageFinished(view: WebView, url: String?) {
+            view.evaluateJavascript(AdBlocker.HIDE_ADS_SCRIPT, null)
             if (!mainFrameFailed) errorView.visibility = View.GONE
         }
 

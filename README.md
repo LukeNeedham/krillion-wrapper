@@ -3,7 +3,9 @@
 A minimal Android app (`com.lukeneedham.krillionwrapper`) that wraps the web game
 [Krillion](https://krillion.io/) in a full-screen `WebView`.
 
-- Portrait only, immersive fullscreen, screen kept on while playing
+- Portrait only, system bars stay visible, screen kept on while playing
+- Ads are blocked: requests to known ad hosts are dropped and banner containers are hidden
+  (`AdBlocker.kt` holds the host list and the CSS selectors)
 - Game saves (localStorage) and cookies persist between launches
 - Links to other sites open in the system browser
 - Back button walks the game's web history, then exits
