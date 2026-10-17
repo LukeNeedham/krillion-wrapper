@@ -1,0 +1,22 @@
+# Builds a debug APK on every PR push and comments the download link on the PR.
+# Shared logic: https://github.com/LukeNeedham/ci-workflows/blob/main/docs/setup.md
+name: On Pull Request
+
+on:
+  workflow_dispatch: {}
+  pull_request:
+    # `closed` runs the release cleanup, the other types run the build. Keep all four.
+    types: [opened, reopened, synchronize, closed]
+    branches:
+      - main
+
+permissions:
+  contents: write       # create the release that holds the APK, and delete it again
+  pull-requests: write  # post the sticky comment
+
+jobs:
+  android:
+    uses: LukeNeedham/ci-workflows/.github/workflows/android_pr.yml@main
+    with:
+      apk-path: app/build/outputs/apk/debug/app-debug.apk
+      comment-header: krillion-wrapper-app-link
