@@ -15,6 +15,18 @@ android {
         versionName = "1.0.0"
     }
 
+    // Debug builds are signed with the keystore committed next to this file (the standard Android
+    // debug credentials, not a secret). Without it every CI run signs with a fresh random key and
+    // a newer build can't be installed over an older one.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

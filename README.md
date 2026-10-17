@@ -26,3 +26,10 @@ Needs JDK 17+ and the Android SDK (API 35).
 - Game URL / host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`
 - Orientation: `android:screenOrientation` in `AndroidManifest.xml`
 - Icon: `res/drawable/ic_launcher_foreground.xml` is a placeholder "K"; replace it with the game's logo
+
+## Debug signing
+
+`app/debug.keystore` is committed on purpose and used to sign debug builds (standard Android debug
+credentials, not a secret). CI runners otherwise generate a new random debug key every run, and
+Android refuses to install a build over one signed with a different key. If you installed a build made
+before this keystore was added, uninstall it once; later builds then update in place.
