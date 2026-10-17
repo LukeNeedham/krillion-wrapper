@@ -25,7 +25,8 @@ Needs JDK 17+ and the Android SDK (API 35).
 
 - Game URL / host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`
 - Orientation: `android:screenOrientation` in `AndroidManifest.xml`
-- Icon: `res/drawable/ic_launcher_foreground.xml` is a placeholder "K"; replace it with the game's logo
+- Icon: `res/drawable-nodpi/ic_launcher_foreground.png` (the Krillion shrimp, 432×432, kept inside the
+  adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`
 
 ## Debug signing
 
