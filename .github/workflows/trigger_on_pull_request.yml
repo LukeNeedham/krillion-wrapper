@@ -9,6 +9,7 @@ on:
     types: [opened, reopened, synchronize, closed]
     branches:
       - main
+      - claude/add-app-icon
 
 permissions:
   contents: write       # create the release that holds the APK, and delete it again
