@@ -16,7 +16,8 @@ permissions:
 
 jobs:
   android:
-    uses: LukeNeedham/ci-workflows/.github/workflows/android_pr.yml@main
+    uses: LukeNeedham/ci-workflows/.github/workflows/android_pr.yml@ccr-438bc873-mo4yy3
     with:
       apk-path: app/build/outputs/apk/debug/app-debug.apk
       comment-header: krillion-wrapper-app-link
+      tools-ref: ccr-438bc873-mo4yy3
