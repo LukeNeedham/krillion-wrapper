@@ -25,6 +25,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.lukeneedham.common.logger.Logger
 
 private const val GAME_URL = "https://krillion.io/"
 private const val GAME_HOST = "krillion.io"
@@ -104,6 +105,7 @@ class MainActivity : ComponentActivity() {
             webView.restoreState(savedInstanceState)
         }
         if (webView.url == null) {
+            Logger.i("Loading $GAME_URL")
             webView.loadUrl(GAME_URL)
         }
     }
@@ -172,6 +174,7 @@ class MainActivity : ComponentActivity() {
             if (uri.isGameHost()) return false // stay in the app
             // Everything else (ads, social links, other sites) opens in the browser.
             runCatching { startActivity(Intent(Intent.ACTION_VIEW, uri)) }
+                .onFailure { Logger.w("No app can open $uri", it) }
             return true
         }
 
@@ -201,6 +204,7 @@ class MainActivity : ComponentActivity() {
         ) {
             // Sub-resource failures (an image, a tracker) must not replace the game with an error.
             if (request.isForMainFrame) {
+                Logger.e("The game page failed to load: ${error.description} (code ${error.errorCode})")
                 mainFrameFailed = true
                 errorView.visibility = View.VISIBLE
             }

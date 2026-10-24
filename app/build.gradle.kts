@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.lukeneedham.krillionwrapper"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.lukeneedham.krillionwrapper"
@@ -14,6 +14,8 @@ android {
         versionCode = 1
         versionName = "1.0.0"
     }
+
+    buildFeatures { buildConfig = true } // BuildConfig.DEBUG turns the shared library's debug tools on
 
     // Debug builds are signed with the keystore committed next to this file (the standard Android
     // debug credentials, not a secret). Without it every CI run signs with a fresh random key and
@@ -48,4 +50,5 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.common)
 }
