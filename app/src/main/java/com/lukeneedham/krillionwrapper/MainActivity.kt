@@ -2,6 +2,7 @@ package com.lukeneedham.krillionwrapper
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -35,6 +36,17 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var webView: WebView
     private lateinit var errorView: View
+
+    /** In-page DevTools (Eruda) for inspecting the game's DOM. Only injected into debuggable builds. */
+    private val erudaScript by lazy {
+        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) {
+            null
+        } else {
+            runCatching { assets.open("eruda.js").bufferedReader().use { it.readText() } }
+                .onFailure { Logger.w("Could not load eruda.js", it) }
+                .getOrNull()
+        }
+    }
 
     /** Set when the main page fails to load, so the error screen is not hidden by a later partial load. */
     private var mainFrameFailed = false
@@ -194,6 +206,13 @@ class MainActivity : ComponentActivity() {
 
         override fun onPageFinished(view: WebView, url: String?) {
             view.evaluateJavascript(AdBlocker.HIDE_ADS_SCRIPT, null)
+            erudaScript?.let { eruda ->
+                view.evaluateJavascript(
+                    "if (!window.eruda) {$eruda}\n" +
+                        "if (window.eruda && !window.__erudaInit) { window.__erudaInit = true; eruda.init(); }",
+                    null,
+                )
+            }
             if (!mainFrameFailed) errorView.visibility = View.GONE
         }
 
