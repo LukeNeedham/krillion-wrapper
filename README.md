@@ -15,7 +15,7 @@ saves and cookies between launches.
 
 ## Screenshots
 
-<img src="docs/screenshots/Home.png" width="240" alt="Home">
+<img src="docs/screenshots/01-Home.png" width="240" alt="Home">
 
 ## Getting started as a user
 
