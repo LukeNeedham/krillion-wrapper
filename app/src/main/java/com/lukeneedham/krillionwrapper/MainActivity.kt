@@ -1,6 +1,10 @@
 package com.lukeneedham.krillionwrapper
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.graphics.Color
@@ -27,9 +31,46 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.lukeneedham.common.logger.Logger
+import org.json.JSONTokener
 
 private const val GAME_URL = "https://krillion.io/"
 private const val GAME_HOST = "krillion.io"
+
+/** Describes the elements at the bottom of the page and every fixed/sticky element, for debugging. */
+private const val LAYOUT_REPORT_SCRIPT = """
+    (function () {
+      function d(el) {
+        var cs = getComputedStyle(el), r = el.getBoundingClientRect();
+        var cls = typeof el.className === 'string' && el.className.trim()
+          ? '.' + el.className.trim().split(/\s+/).join('.') : '';
+        return el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + cls +
+          ' pos=' + cs.position + ' rect=' + [r.left, r.top, r.width, r.height].map(Math.round) +
+          ' bottom=' + cs.bottom + ' pb=' + cs.paddingBottom + ' mb=' + cs.marginBottom +
+          ' bg=' + cs.backgroundColor + ' z=' + cs.zIndex + ' pe=' + cs.pointerEvents;
+      }
+      var layout = document.querySelector('.kr-ad-layout');
+      var out = [
+        'viewport ' + innerWidth + 'x' + innerHeight + ' dpr=' + devicePixelRatio,
+        'rail-bottom=' + (layout ? getComputedStyle(layout).getPropertyValue('--kr-rail-bottom') : 'no layout')
+      ];
+      [8, 40, 80, 120].forEach(function (off) {
+        out.push('--- topmost at y=innerHeight-' + off);
+        var el = document.elementFromPoint(innerWidth / 2, innerHeight - off), n = 0;
+        while (el && n++ < 6) { out.push(d(el)); el = el.parentElement; }
+      });
+      out.push('--- selectors');
+      ['.kr-ad-layout', '.ds-root', '.ds-done', '.ds-done-inner', '.ds-stage'].forEach(function (s) {
+        var e = document.querySelector(s);
+        out.push(s + ': ' + (e ? d(e) : 'none'));
+      });
+      out.push('--- fixed/sticky elements');
+      document.querySelectorAll('body *').forEach(function (e) {
+        var p = getComputedStyle(e).position;
+        if (p === 'fixed' || p === 'sticky') out.push(d(e));
+      });
+      return out.join('\n');
+    })()
+"""
 
 /** Hosts the Krillion web game full screen in a [WebView]. */
 class MainActivity : ComponentActivity() {
@@ -154,6 +195,7 @@ class MainActivity : ComponentActivity() {
             setPadding(0, 0, 0, 0)
             alpha = 0.7f
             setOnClickListener { toggleDevTools() }
+            setOnLongClickListener { showLayoutReport(); true }
             layoutParams = FrameLayout.LayoutParams((56 * dp).toInt(), (40 * dp).toInt()).apply {
                 gravity = Gravity.BOTTOM or Gravity.START
                 leftMargin = (8 * dp).toInt()
@@ -176,6 +218,28 @@ class MainActivity : ComponentActivity() {
             "return window.__erudaOpen ? 'opened' : 'closed';\n" +
             "})()"
         webView.evaluateJavascript(script) { Logger.i("DevTools toggle: $it") }
+    }
+
+    /** Debug-only: shows what sits at the bottom of the page, in a dialog whose text can be copied. */
+    private fun showLayoutReport() {
+        webView.evaluateJavascript(LAYOUT_REPORT_SCRIPT) { raw ->
+            val report = runCatching { JSONTokener(raw).nextValue() as? String }.getOrNull() ?: raw
+            val text = TextView(this).apply {
+                this.text = report
+                textSize = 11f
+                setTextIsSelectable(true)
+                setPadding(32, 24, 32, 24)
+            }
+            AlertDialog.Builder(this)
+                .setTitle("Layout report")
+                .setView(android.widget.ScrollView(this).apply { addView(text) })
+                .setPositiveButton("Copy") { _, _ ->
+                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    clipboard.setPrimaryClip(ClipData.newPlainText("layout report", report))
+                }
+                .setNegativeButton("Close", null)
+                .show()
+        }
     }
 
     private fun buildErrorView(): View {
