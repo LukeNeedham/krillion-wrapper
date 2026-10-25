@@ -106,7 +106,10 @@ object AdBlocker {
             '[class*="adcontainer" i]'
           ].join(',') + '{display:none !important;height:0 !important;min-height:0 !important;}' +
             // The page reserves room at the bottom for the ad dock; give that space back to the game.
-            '.kr-ad-layout{--kr-rail-bottom:0px !important;--kr-ad-dock-lift:0px !important;}';
+            '.kr-ad-layout{--kr-rail-bottom:0px !important;--kr-ad-dock-lift:0px !important;}' +
+            // The game screen is fixed 50px above the bottom of the page, leaving an empty strip where
+            // the sticky ad would go. Let it fill the screen.
+            '.ds-root{bottom:0 !important;}';
           (document.head || document.documentElement).appendChild(style);
 
           // With the ad requests blocked, the game's ad slot is left behind as an empty bar pinned to
