@@ -35,7 +35,8 @@ fun SettingsSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
     onOpenDebug: () -> Unit,
-    onInspectPage: () -> Unit,
+    inspectorOpen: Boolean,
+    onToggleInspector: () -> Unit,
     onShowLayoutReport: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -80,9 +81,11 @@ fun SettingsSheet(
                 )
                 DebugButton(onClick = onOpenDebug, modifier = Modifier.fillMaxWidth())
                 SettingsRow(
-                    title = stringResource(R.string.settings_inspect_title),
+                    title = stringResource(
+                        if (inspectorOpen) R.string.settings_inspect_hide_title else R.string.settings_inspect_show_title,
+                    ),
                     detail = stringResource(R.string.settings_inspect_detail),
-                    onClick = onInspectPage,
+                    onClick = onToggleInspector,
                 )
                 SettingsRow(
                     title = stringResource(R.string.settings_layout_title),

@@ -25,7 +25,8 @@ private enum class Screen { Game, Sheet, Debug, Logs, Crashes }
  */
 @Composable
 fun AppOverlay(
-    onInspectPage: () -> Unit,
+    inspectorOpen: Boolean,
+    onToggleInspector: () -> Unit,
     onShowLayoutReport: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -50,9 +51,10 @@ fun AppOverlay(
                     visible = screen == Screen.Sheet,
                     onDismiss = { screen = Screen.Game },
                     onOpenDebug = { screen = Screen.Debug },
-                    onInspectPage = {
+                    inspectorOpen = inspectorOpen,
+                    onToggleInspector = {
                         screen = Screen.Game
-                        onInspectPage()
+                        onToggleInspector()
                     },
                     onShowLayoutReport = {
                         screen = Screen.Game

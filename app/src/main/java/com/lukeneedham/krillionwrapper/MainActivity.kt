@@ -14,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -26,6 +27,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -40,6 +44,9 @@ import org.json.JSONTokener
 
 private const val GAME_URL = "https://krillion.io/"
 private const val GAME_HOST = "krillion.io"
+
+/** The name the debug-only inspector bridge has in the page. */
+private const val INSPECTOR_BRIDGE = "KrillionDevTools"
 
 /** Describes the elements at the bottom of the page and every fixed/sticky element, for debugging. */
 private const val LAYOUT_REPORT_SCRIPT = """
@@ -94,6 +101,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** Whether the Eruda inspector is showing. Kept in step with Eruda's own show/hide events. */
+    private var inspectorOpen by mutableStateOf(false)
+
+    /** Called from the page's JavaScript when Eruda is shown or hidden, including by its own close button. */
+    private inner class InspectorBridge {
+        @JavascriptInterface
+        fun onChanged(open: Boolean) {
+            runOnUiThread { inspectorOpen = open }
+        }
+    }
+
     /** Set when the main page fails to load, so the error screen is not hidden by a later partial load. */
     private var mainFrameFailed = false
 
@@ -122,6 +140,7 @@ class MainActivity : ComponentActivity() {
                 builtInZoomControls = false
             }
             webViewClient = GameWebViewClient()
+            if (erudaScript != null) addJavascriptInterface(InspectorBridge(), INSPECTOR_BRIDGE)
         }
         CookieManager.getInstance().setAcceptCookie(true)
 
@@ -150,7 +169,9 @@ class MainActivity : ComponentActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (webView.canGoBack()) {
+                    if (inspectorOpen) {
+                        setPageInspectorOpen(false)
+                    } else if (webView.canGoBack()) {
                         webView.goBack()
                     } else {
                         isEnabled = false
@@ -191,14 +212,15 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    private fun showPageInspector() {
+    /** Opens or closes the Eruda inspector over the game, loading it into the page on first use. */
+    private fun setPageInspectorOpen(open: Boolean) {
         val eruda = erudaScript ?: return
         val script = "(function () {\n" +
             "if (!window.eruda) {\n$eruda\n}\n" +
             "if (!window.__erudaInit) {\n" +
             "  window.__erudaInit = true;\n" +
             "  eruda.init();\n" +
-            // The settings sheet opens the inspector, so hide Eruda's own draggable entry button (it
+            // The settings sheet controls the inspector, so hide Eruda's own draggable entry button (it
             // lives in a shadow root, which a plain querySelector cannot reach).
             "  eruda.get('entryBtn').hide();\n" +
             "  var host = document.getElementById('eruda');\n" +
@@ -207,8 +229,11 @@ class MainActivity : ComponentActivity() {
             "    style.textContent = '.eruda-entry-btn { display: none !important; }';\n" +
             "    host.shadowRoot.appendChild(style);\n" +
             "  }\n" +
+            // Tell the app whenever the panel opens or closes, including its own close button.
+            "  eruda.get().on('show', function () { window.$INSPECTOR_BRIDGE.onChanged(true); });\n" +
+            "  eruda.get().on('hide', function () { window.$INSPECTOR_BRIDGE.onChanged(false); });\n" +
             "}\n" +
-            "eruda.show();\n" +
+            "if (${open}) eruda.show(); else eruda.hide();\n" +
             "})()"
         webView.evaluateJavascript(script, null)
     }
@@ -242,7 +267,8 @@ class MainActivity : ComponentActivity() {
             ProvideAppTheme(theme) {
                 ProvideDebugSettings(theme = theme.toDebugTheme()) {
                     AppOverlay(
-                        onInspectPage = ::showPageInspector,
+                        inspectorOpen = inspectorOpen,
+                        onToggleInspector = { setPageInspectorOpen(!inspectorOpen) },
                         onShowLayoutReport = ::showLayoutReport,
                     )
                 }
