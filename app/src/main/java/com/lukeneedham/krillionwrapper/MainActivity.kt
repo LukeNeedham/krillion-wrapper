@@ -6,7 +6,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -27,10 +26,16 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.lukeneedham.common.logger.Logger
+import com.lukeneedham.common.ui.ProvideDebugSettings
+import com.lukeneedham.krillionwrapper.ui.AppOverlay
+import com.lukeneedham.krillionwrapper.ui.AppThemeValues
+import com.lukeneedham.krillionwrapper.ui.ProvideAppTheme
+import com.lukeneedham.krillionwrapper.ui.toDebugTheme
 import org.json.JSONTokener
 
 private const val GAME_URL = "https://krillion.io/"
@@ -78,9 +83,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private lateinit var errorView: View
 
-    /** Eruda DevTools source, for inspecting the game's DOM. Only loaded in debuggable builds. */
+    /** Eruda DevTools source, for inspecting the game's DOM. Only loaded in debug builds. */
     private val erudaScript by lazy {
-        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) {
+        if (!BuildConfig.DEBUG) {
             null
         } else {
             runCatching { assets.open("eruda.js").bufferedReader().use { it.readText() } }
@@ -127,7 +132,7 @@ class MainActivity : ComponentActivity() {
                 setBackgroundColor(getColor(R.color.background))
                 addView(webView)
                 addView(errorView)
-                if (erudaScript != null) addView(buildDevToolsButton())
+                if (BuildConfig.DEBUG) addView(buildOverlay())
                 // Android 15+ draws edge to edge; keep the game clear of the (visible) system bars.
                 ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                     val safe = insets.getInsets(
@@ -186,38 +191,26 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    /** Debug-only native button that opens or closes Eruda DevTools over the game. */
-    private fun buildDevToolsButton(): View {
-        val dp = resources.displayMetrics.density
-        return Button(this).apply {
-            text = "DOM"
-            textSize = 11f
-            setPadding(0, 0, 0, 0)
-            alpha = 0.7f
-            setOnClickListener { toggleDevTools() }
-            setOnLongClickListener { showLayoutReport(); true }
-            layoutParams = FrameLayout.LayoutParams((56 * dp).toInt(), (40 * dp).toInt()).apply {
-                gravity = Gravity.BOTTOM or Gravity.START
-                leftMargin = (8 * dp).toInt()
-                bottomMargin = (8 * dp).toInt()
-            }
-        }
-    }
-
-    private fun toggleDevTools() {
+    private fun showPageInspector() {
         val eruda = erudaScript ?: return
         val script = "(function () {\n" +
             "if (!window.eruda) {\n$eruda\n}\n" +
             "if (!window.__erudaInit) {\n" +
             "  window.__erudaInit = true;\n" +
             "  eruda.init();\n" +
-            "  var btn = document.querySelector('.eruda-entry-btn'); if (btn) btn.style.display = 'none';\n" +
+            // The settings sheet opens the inspector, so hide Eruda's own draggable entry button (it
+            // lives in a shadow root, which a plain querySelector cannot reach).
+            "  eruda.get('entryBtn').hide();\n" +
+            "  var host = document.getElementById('eruda');\n" +
+            "  if (host && host.shadowRoot) {\n" +
+            "    var style = document.createElement('style');\n" +
+            "    style.textContent = '.eruda-entry-btn { display: none !important; }';\n" +
+            "    host.shadowRoot.appendChild(style);\n" +
+            "  }\n" +
             "}\n" +
-            "window.__erudaOpen = !window.__erudaOpen;\n" +
-            "if (window.__erudaOpen) eruda.show(); else eruda.hide();\n" +
-            "return window.__erudaOpen ? 'opened' : 'closed';\n" +
+            "eruda.show();\n" +
             "})()"
-        webView.evaluateJavascript(script) { Logger.i("DevTools toggle: $it") }
+        webView.evaluateJavascript(script, null)
     }
 
     /** Debug-only: shows what sits at the bottom of the page, in a dialog whose text can be copied. */
@@ -239,6 +232,21 @@ class MainActivity : ComponentActivity() {
                 }
                 .setNegativeButton("Close", null)
                 .show()
+        }
+    }
+
+    /** The settings gear, its sheet and the debug pages, drawn over the game. Debug builds only. */
+    private fun buildOverlay(): View = ComposeView(this).apply {
+        setContent {
+            val theme = AppThemeValues()
+            ProvideAppTheme(theme) {
+                ProvideDebugSettings(theme = theme.toDebugTheme()) {
+                    AppOverlay(
+                        onInspectPage = ::showPageInspector,
+                        onShowLayoutReport = ::showLayoutReport,
+                    )
+                }
+            }
         }
     }
 
