@@ -3,7 +3,7 @@ agp = "8.13.2"
 kotlin = "2.2.21"
 coreKtx = "1.16.0"
 activityKtx = "1.10.1"
-common = "0.7.0"
+common = "0.8.0"
 compose = "1.10.3" # same as the shared library, which is built on it
 activityCompose = "1.10.1"
 
