@@ -1,36 +1,51 @@
-# krillion-wrapper
+<!-- Generated from readme.yml by LukeNeedham/ci-workflows (docs/readme.md). Edit readme.yml, not this file. -->
+<p align="center">
+  <img src="app-icon.png" width="128" alt="Krillion wrapper icon">
+</p>
 
-A minimal Android app (`com.lukeneedham.krillionwrapper`) that wraps the web game
-[Krillion](https://krillion.io/) in a full-screen `WebView`.
+# Krillion wrapper
 
-- Portrait only, system bars stay visible, screen kept on while playing
-- Ads are blocked: requests to known ad hosts are dropped and banner containers are hidden
-  (`AdBlocker.kt` holds the host list and the CSS selectors)
-- Game saves (localStorage) and cookies persist between launches
-- Links to other sites open in the system browser
-- Back button walks the game's web history, then exits
-- Retry screen when the game can't be reached
-- Debug APKs are built on every PR by the shared [ci-workflows](https://github.com/LukeNeedham/ci-workflows);
-  the APK link is posted as a comment on the PR
+Krillion in a full-screen Android app.
 
-## Build
+## Description
+
+Krillion wrapper is a minimal Android app that wraps the web game [Krillion](https://krillion.io/) in a full-screen
+`WebView`, so it plays like an app. It is portrait only, keeps the screen on while you play, and keeps your game
+saves and cookies between launches.
+
+## Screenshots
+
+<img src="docs/screenshots/01-Home.png" width="240" alt="Home">
+
+## Getting started as a user
+
+1. Install the latest build from the [AppHub](https://www.lukeneedham.com/apphub) app, or download the APK from the [Releases](https://github.com/LukeNeedham/krillion-wrapper/releases) page.
+
+Requires Android 8.0 (API 26) or newer.
+
+## Getting started as a developer
+
+Requirements: JDK 17 and the Android SDK (platform 36), for example through Android Studio.
 
 ```
-./gradlew assembleDebug   # app/build/outputs/apk/debug/app-debug.apk
+git clone https://github.com/LukeNeedham/krillion-wrapper.git
+cd krillion-wrapper
+./gradlew assembleDebug    # the APK is in app/build/outputs/apk/debug/
+./gradlew test             # unit tests
 ```
 
-Needs JDK 17+ and the Android SDK (API 35).
+Every pull request is built by CI, which comments on it with a link to install the APK.
 
-## Changing it
+Like all my apps, it follows the shared architecture and conventions (single activity, Jetpack Compose, Navigation 3, MVVM with every page split into a `Page` and a `PageContent`, Koin): see [ci-workflows](https://github.com/LukeNeedham/ci-workflows/blob/main/docs/new-app.md).
 
-- Game URL / host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`
-- Orientation: `android:screenOrientation` in `AndroidManifest.xml`
+- Game URL and host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`.
 - Icon: `res/drawable-nodpi/ic_launcher_foreground.png` (the Krillion shrimp, 432×432, kept inside the
-  adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`
+  adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`.
 
-## Debug signing
+## Contributing
 
-`app/debug.keystore` is committed on purpose and used to sign debug builds (standard Android debug
-credentials, not a secret). CI runners otherwise generate a new random debug key every run, and
-Android refuses to install a build over one signed with a different key. If you installed a build made
-before this keystore was added, uninstall it once; later builds then update in place.
+Branch from `main`, make the change, and open a pull request. CI must be green before it is merged.
+
+## License
+
+All rights reserved. See [LICENSE](LICENSE).
