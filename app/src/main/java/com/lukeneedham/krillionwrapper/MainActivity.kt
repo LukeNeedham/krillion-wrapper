@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private lateinit var errorView: View
 
-    /** In-page DevTools (Eruda) for inspecting the game's DOM. Only injected into debuggable builds. */
+    /** Eruda DevTools source, for inspecting the game's DOM. Only loaded in debuggable builds. */
     private val erudaScript by lazy {
         if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) {
             null
@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
                 setBackgroundColor(getColor(R.color.background))
                 addView(webView)
                 addView(errorView)
+                if (erudaScript != null) addView(buildDevToolsButton())
                 // Android 15+ draws edge to edge; keep the game clear of the (visible) system bars.
                 ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
                     val safe = insets.getInsets(
@@ -142,6 +143,39 @@ class MainActivity : ComponentActivity() {
         (webView.parent as? ViewGroup)?.removeView(webView)
         webView.destroy()
         super.onDestroy()
+    }
+
+    /** Debug-only native button that opens or closes Eruda DevTools over the game. */
+    private fun buildDevToolsButton(): View {
+        val dp = resources.displayMetrics.density
+        return Button(this).apply {
+            text = "DOM"
+            textSize = 11f
+            setPadding(0, 0, 0, 0)
+            alpha = 0.7f
+            setOnClickListener { toggleDevTools() }
+            layoutParams = FrameLayout.LayoutParams((56 * dp).toInt(), (40 * dp).toInt()).apply {
+                gravity = Gravity.BOTTOM or Gravity.START
+                leftMargin = (8 * dp).toInt()
+                bottomMargin = (8 * dp).toInt()
+            }
+        }
+    }
+
+    private fun toggleDevTools() {
+        val eruda = erudaScript ?: return
+        val script = "(function () {\n" +
+            "if (!window.eruda) {\n$eruda\n}\n" +
+            "if (!window.__erudaInit) {\n" +
+            "  window.__erudaInit = true;\n" +
+            "  eruda.init();\n" +
+            "  var btn = document.querySelector('.eruda-entry-btn'); if (btn) btn.style.display = 'none';\n" +
+            "}\n" +
+            "window.__erudaOpen = !window.__erudaOpen;\n" +
+            "if (window.__erudaOpen) eruda.show(); else eruda.hide();\n" +
+            "return window.__erudaOpen ? 'opened' : 'closed';\n" +
+            "})()"
+        webView.evaluateJavascript(script) { Logger.i("DevTools toggle: $it") }
     }
 
     private fun buildErrorView(): View {
@@ -206,13 +240,6 @@ class MainActivity : ComponentActivity() {
 
         override fun onPageFinished(view: WebView, url: String?) {
             view.evaluateJavascript(AdBlocker.HIDE_ADS_SCRIPT, null)
-            erudaScript?.let { eruda ->
-                view.evaluateJavascript(
-                    "if (!window.eruda) {$eruda}\n" +
-                        "if (window.eruda && !window.__erudaInit) { window.__erudaInit = true; eruda.init(); }",
-                    null,
-                )
-            }
             if (!mainFrameFailed) errorView.visibility = View.GONE
         }
 
