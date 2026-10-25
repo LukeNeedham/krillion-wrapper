@@ -98,6 +98,38 @@ object AdBlocker {
             '[class*="adcontainer" i]'
           ].join(',') + '{display:none !important;height:0 !important;min-height:0 !important;}';
           (document.head || document.documentElement).appendChild(style);
+
+          // With the ad requests blocked, the game's ad slot is left behind as an empty bar pinned to
+          // the bottom of the screen that still covers the content. Hide any such empty bar entirely.
+          function hideEmptyBottomBars() {
+            var vw = window.innerWidth, vh = window.innerHeight;
+            var all = document.body ? document.body.getElementsByTagName('*') : [];
+            for (var i = 0; i < all.length; i++) {
+              var el = all[i];
+              if (el.dataset && el.dataset.krillionHidden) continue;
+              var cs = getComputedStyle(el);
+              if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+              var r = el.getBoundingClientRect();
+              if (r.height <= 0 || r.height > vh * 0.3 || r.width < vw * 0.8) continue;
+              if (Math.abs(r.bottom - vh) > 4) continue;
+              if ((el.innerText || '').trim() !== '') continue;
+              if (el.querySelector('img,canvas,video,svg,button,input,a,[role="button"]')) continue;
+              el.style.setProperty('display', 'none', 'important');
+              el.dataset.krillionHidden = '1';
+            }
+          }
+          var scheduled = false;
+          function schedule() {
+            if (scheduled) return;
+            scheduled = true;
+            setTimeout(function () { scheduled = false; hideEmptyBottomBars(); }, 300);
+          }
+          hideEmptyBottomBars();
+          new MutationObserver(schedule).observe(document.documentElement, {
+            childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class']
+          });
+          window.addEventListener('resize', schedule);
+          setInterval(hideEmptyBottomBars, 2000);
         })();
     """
 }
