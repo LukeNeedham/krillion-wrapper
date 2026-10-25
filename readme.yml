@@ -1,0 +1,18 @@
+# The data of this app's README.md. CI renders README.md from it (docs/readme.md in LukeNeedham/ci-workflows):
+# edit this file, never README.md.
+
+name: Krillion wrapper
+tagline: Krillion in a full-screen Android app.
+
+description: |
+  Krillion wrapper is a minimal Android app that wraps the web game [Krillion](https://krillion.io/) in a full-screen
+  `WebView`, so it plays like an app. It is portrait only, keeps the screen on while you play, and keeps your game
+  saves and cookies between launches.
+
+screenshots: manual
+
+developer:
+  notes: |
+    - Game URL and host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`.
+    - Icon: `res/drawable-nodpi/ic_launcher_foreground.png` (the Krillion shrimp, 432×432, kept inside the
+      adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`.
