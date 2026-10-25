@@ -75,6 +75,14 @@ object AdBlocker {
           var style = document.createElement('style');
           style.id = 'krillion-wrapper-hide-ads';
           style.textContent = [
+            // krillion.io's own ad slots (Mediavine) and sticky ad dock
+            '.kr-ad-placement',
+            '.kr-ad-results',
+            '.mv_slot_target',
+            '[class*="kr-ad-dock"]',
+            '[class*="kr-ad-rail"]',
+            '[id^="mv-"]',
+            '[class*="mv-sticky"]',
             'ins.adsbygoogle',
             '[class*="adsbygoogle"]',
             '[id^="google_ads"]',
@@ -96,7 +104,9 @@ object AdBlocker {
             '[class*="ad-container" i]',
             '[id*="adcontainer" i]',
             '[class*="adcontainer" i]'
-          ].join(',') + '{display:none !important;height:0 !important;min-height:0 !important;}';
+          ].join(',') + '{display:none !important;height:0 !important;min-height:0 !important;}' +
+            // The page reserves room at the bottom for the ad dock; give that space back to the game.
+            '.kr-ad-layout{--kr-rail-bottom:0px !important;--kr-ad-dock-lift:0px !important;}';
           (document.head || document.documentElement).appendChild(style);
 
           // With the ad requests blocked, the game's ad slot is left behind as an empty bar pinned to
