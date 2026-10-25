@@ -5,17 +5,13 @@
 
 # Krillion wrapper
 
-The web game Krillion in a full-screen Android app, without the ads.
+Krillion in a full-screen Android app.
 
 ## Description
 
 Krillion wrapper is a minimal Android app that wraps the web game [Krillion](https://krillion.io/) in a full-screen
 `WebView`, so it plays like an app. It is portrait only, keeps the screen on while you play, and keeps your game
 saves and cookies between launches.
-
-Requests to known ad hosts are dropped and banner containers are hidden, links to other sites open in the system
-browser, the back button walks the game's history before exiting, and a retry screen shows when the game cannot be
-reached.
 
 ## Screenshots
 
@@ -42,15 +38,9 @@ Every pull request is built by CI, which comments on it with a link to install t
 
 Like all my apps, it follows the shared architecture and conventions (single activity, Jetpack Compose, Navigation 3, MVVM with every page split into a `Page` and a `PageContent`, Koin): see [ci-workflows](https://github.com/LukeNeedham/ci-workflows/blob/main/docs/new-app.md).
 
-- Game URL and host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`. The ad host list and the CSS selectors that
-  hide banners are in `AdBlocker.kt`.
-- Orientation: `android:screenOrientation` in `AndroidManifest.xml`.
+- Game URL and host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`.
 - Icon: `res/drawable-nodpi/ic_launcher_foreground.png` (the Krillion shrimp, 432×432, kept inside the
   adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`.
-- `app/debug.keystore` is committed on purpose and signs debug builds (standard Android debug credentials, not a
-  secret). CI runners otherwise generate a new random debug key every run, and Android refuses to install a build
-  over one signed with a different key. If you installed a build made before this keystore was added, uninstall
-  it once; later builds then update in place.
 
 ## Contributing
 
