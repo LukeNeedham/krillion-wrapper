@@ -38,7 +38,7 @@ Every pull request is built by CI, which comments on it with a link to install t
 
 Like all my apps, it follows the shared architecture and conventions (single activity, Jetpack Compose, Navigation 3, MVVM with every page split into a `Page` and a `PageContent`, Koin): see [ci-workflows](https://github.com/LukeNeedham/ci-workflows/blob/main/docs/new-app.md).
 
-- Game URL and host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`.
+- Game URL and host: `GAME_URL` and `GAME_HOST` in `game/GameWebViewClient.kt`.
 - Icon: `res/drawable-nodpi/ic_launcher_foreground.png` (the Krillion shrimp, 432×432, kept inside the
   adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`.
 

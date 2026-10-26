@@ -36,7 +36,7 @@ object AppTheme {
 }
 
 @Composable
-fun ProvideAppTheme(values: AppThemeValues = AppThemeValues(), content: @Composable () -> Unit) {
+fun AppTheme(values: AppThemeValues = AppThemeValues(), content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalAppTheme provides values, content = content)
 }
 
