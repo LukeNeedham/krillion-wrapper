@@ -92,7 +92,7 @@ internal fun GamePageContent(
         if (showSettings) {
             SettingsButton(
                 onClick = onOpenSettings,
-                modifier = Modifier.align(Alignment.BottomStart).padding(8.dp),
+                modifier = Modifier.align(Alignment.TopStart).padding(start = 50.dp, top = 15.dp),
             )
             SettingsSheet(
                 visible = uiState.settingsOpen,
