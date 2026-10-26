@@ -3,7 +3,6 @@
     <string name="error_title">Can\'t reach Krillion</string>
     <string name="error_retry">Retry</string>
     <string name="settings_open">Settings</string>
-    <string name="settings_icon">⚙</string>
     <string name="settings_title">Settings</string>
     <string name="settings_inspect_show_title">Show page inspector</string>
     <string name="settings_inspect_hide_title">Hide page inspector</string>
