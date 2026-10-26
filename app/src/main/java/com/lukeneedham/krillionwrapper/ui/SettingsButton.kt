@@ -39,8 +39,8 @@ fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             painter = painterResource(R.drawable.ic_settings),
             contentDescription = null,
             modifier = Modifier.size(22.dp),
-            alpha = 0.55f,
-            colorFilter = ColorFilter.tint(theme.onBackground),
+            alpha = 0.9f,
+            colorFilter = ColorFilter.tint(theme.onSurfaceMuted),
         )
     }
 }
