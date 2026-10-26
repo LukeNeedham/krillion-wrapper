@@ -38,7 +38,7 @@ import com.lukeneedham.common.logger.Logger
 import com.lukeneedham.common.ui.ProvideDebugSettings
 import com.lukeneedham.krillionwrapper.ui.AppOverlay
 import com.lukeneedham.krillionwrapper.ui.AppThemeValues
-import com.lukeneedham.krillionwrapper.ui.ProvideAppTheme
+import com.lukeneedham.krillionwrapper.ui.AppTheme
 import com.lukeneedham.krillionwrapper.ui.toDebugTheme
 import org.json.JSONTokener
 
@@ -264,7 +264,7 @@ class MainActivity : ComponentActivity() {
     private fun buildOverlay(): View = ComposeView(this).apply {
         setContent {
             val theme = AppThemeValues()
-            ProvideAppTheme(theme) {
+            AppTheme(theme) {
                 ProvideDebugSettings(theme = theme.toDebugTheme()) {
                     AppOverlay(
                         inspectorOpen = inspectorOpen,
