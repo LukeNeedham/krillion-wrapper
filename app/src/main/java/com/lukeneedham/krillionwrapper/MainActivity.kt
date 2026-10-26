@@ -35,11 +35,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.lukeneedham.common.logger.Logger
-import com.lukeneedham.common.ui.ProvideDebugSettings
-import com.lukeneedham.krillionwrapper.ui.AppOverlay
-import com.lukeneedham.krillionwrapper.ui.AppThemeValues
-import com.lukeneedham.krillionwrapper.ui.AppTheme
-import com.lukeneedham.krillionwrapper.ui.toDebugTheme
 import org.json.JSONTokener
 
 private const val GAME_URL = "https://krillion.io/"
@@ -263,16 +258,11 @@ class MainActivity : ComponentActivity() {
     /** The settings gear, its sheet and the debug pages, drawn over the game. Debug builds only. */
     private fun buildOverlay(): View = ComposeView(this).apply {
         setContent {
-            val theme = AppThemeValues()
-            AppTheme(theme) {
-                ProvideDebugSettings(theme = theme.toDebugTheme()) {
-                    AppOverlay(
-                        inspectorOpen = inspectorOpen,
-                        onToggleInspector = { setPageInspectorOpen(!inspectorOpen) },
-                        onShowLayoutReport = ::showLayoutReport,
-                    )
-                }
-            }
+            Root(
+                inspectorOpen = inspectorOpen,
+                onToggleInspector = { setPageInspectorOpen(!inspectorOpen) },
+                onShowLayoutReport = ::showLayoutReport,
+            )
         }
     }
 
