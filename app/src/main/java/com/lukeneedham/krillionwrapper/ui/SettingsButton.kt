@@ -20,7 +20,7 @@ import com.lukeneedham.krillionwrapper.R
 
 /**
  * The small rectangular gear that floats over the game and opens the settings sheet, styled like the
- * game's own menu buttons: a dark flat fill, a thin darker border and a muted icon.
+ * game's own menu buttons: a translucent dark fill, a thin darker border and a muted icon.
  */
 @Composable
 fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -29,8 +29,8 @@ fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .size(width = 40.dp, height = 30.dp)
-            .background(theme.surface)
-            .border(2.dp, theme.background)
+            .background(theme.background.copy(alpha = 0.4f))
+            .border(2.dp, theme.background.copy(alpha = 0.8f))
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
