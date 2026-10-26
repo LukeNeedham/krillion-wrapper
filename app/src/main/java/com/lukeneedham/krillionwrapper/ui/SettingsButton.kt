@@ -18,14 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lukeneedham.krillionwrapper.R
 
-/** The small square gear that floats over the game and opens the settings sheet. */
+/** The small rectangular gear that floats over the game and opens the settings sheet. */
 @Composable
 fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val theme = AppTheme.current
     val description = stringResource(R.string.settings_open)
     Box(
         modifier = modifier
-            .size(30.dp)
+            .size(width = 40.dp, height = 30.dp)
             .alpha(0.75f)
             .background(theme.surface)
             .clickable(role = Role.Button, onClick = onClick)
