@@ -45,7 +45,7 @@ fun AppOverlay(
             Screen.Game, Screen.Sheet -> {
                 SettingsButton(
                     onClick = { screen = Screen.Sheet },
-                    modifier = Modifier.align(Alignment.TopStart).padding(start = 60.dp, top = 15.dp),
+                    modifier = Modifier.align(Alignment.TopStart).padding(start = 50.dp, top = 15.dp),
                 )
                 SettingsSheet(
                     visible = screen == Screen.Sheet,
