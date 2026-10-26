@@ -13,6 +13,6 @@ screenshots: manual
 
 developer:
   notes: |
-    - Game URL and host: `GAME_URL` and `GAME_HOST` in `MainActivity.kt`.
+    - Game URL and host: `GAME_URL` and `GAME_HOST` in `game/GameWebViewClient.kt`.
     - Icon: `res/drawable-nodpi/ic_launcher_foreground.png` (the Krillion shrimp, 432×432, kept inside the
       adaptive-icon safe zone) on the dark grey `icon_background` colour in `res/values/colors.xml`.
