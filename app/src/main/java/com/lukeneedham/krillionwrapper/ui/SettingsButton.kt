@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -19,7 +20,7 @@ import com.lukeneedham.krillionwrapper.R
 
 /**
  * The small rectangular gear that floats over the game and opens the settings sheet, styled like the
- * game's own menu buttons: a translucent dark fill, a thin darker border and a gear icon with a bold outline.
+ * game's own menu buttons: a translucent dark fill, a thin darker border and a translucent gear icon.
  */
 @Composable
 fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -38,6 +39,8 @@ fun SettingsButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
             painter = painterResource(R.drawable.ic_settings),
             contentDescription = null,
             modifier = Modifier.size(22.dp),
+            alpha = 0.55f,
+            colorFilter = ColorFilter.tint(theme.onBackground),
         )
     }
 }
