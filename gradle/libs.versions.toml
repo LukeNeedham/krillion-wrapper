@@ -8,6 +8,7 @@ compose = "1.10.3" # same as the shared library, which is built on it
 lifecycle = "2.10.0"
 navigation3 = "1.1.7"
 kotlinxSerialization = "1.9.0"
+koin = "4.2.2"
 activityCompose = "1.13.0"
 
 [libraries]
@@ -22,6 +23,9 @@ androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-androidx-compose" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 common = { module = "com.lukeneedham:common", version.ref = "common" }
 

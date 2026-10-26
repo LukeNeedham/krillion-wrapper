@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lukeneedham.krillionwrapper.BuildConfig
-import com.lukeneedham.krillionwrapper.ui.appViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * The Krillion web game, full screen. In a debug build the settings gear opens a sheet with the debug tools, which can
@@ -17,7 +17,7 @@ import com.lukeneedham.krillionwrapper.ui.appViewModel
  */
 @Composable
 fun GamePage(onOpenDebug: () -> Unit) {
-    val viewModel = appViewModel { GameViewModel(it) }
+    val viewModel = koinViewModel<GameViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
